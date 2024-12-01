@@ -1,5 +1,8 @@
 # AOC23
 
+| Day | Part 1 | Part 2 |
+| :---: | :---: | :---:  |
+
 ## Usage
 Generate the files for a day
 ```
@@ -10,3 +13,4 @@ Run the code of a day
 ```
 cargo solve <day>
 ```
+
