@@ -2,6 +2,7 @@
 
 | Day | Part 1 | Part 2 |
 | :---: | :---: | :---:  |
+| [Day 1](./src/days/day1.rs) | `95.67µs` | `92.64µs` |
 
 Total time: `0s`
 
