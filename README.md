@@ -1,4 +1,4 @@
-# aoc_template
+# AOC24
 
 | Day | Part 1 | Part 2 |
 | :---: | :---: | :---:  |
