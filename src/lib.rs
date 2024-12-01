@@ -5,6 +5,7 @@ use indoc::formatdoc;
 
 mod days;
 
+#[allow(dead_code)]
 fn exec(fun: impl Fn(&str) -> String, input: &str) {
     let start_time = Instant::now();
     let result = fun(input);
