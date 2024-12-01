@@ -1,6 +1,6 @@
 use std::env;
 
-use aoc_template::{run, generate};
+use aoc24::{run, generate};
 
 fn main() {
     let args :Vec<String> = env::args().collect();
