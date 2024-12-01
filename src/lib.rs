@@ -11,8 +11,6 @@ use regex::Regex;
 
 mod days;
 
-//TODO: get input from aoc page
-
 #[allow(dead_code)]
 fn exec<F1: Fn(&str) -> String, F2: Fn(&str) -> String>(day: i32, part1: F1, part2: F2, input: &str) {
     let start_time = Instant::now();
