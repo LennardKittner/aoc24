@@ -3,6 +3,7 @@ use std::fs;
 use crate::exec;
 
 mod day1;
+mod day2;
 
 
 pub fn run(day: i32) {
@@ -14,6 +15,9 @@ pub fn run(day: i32) {
         t if t < 0 => (),
         1 => {
             exec(1, day1::exec_day1_part1, day1::exec_day1_part2, &input);
+        },
+        2 => {
+            exec(2, day2::exec_day2_part1, day2::exec_day2_part2, &input);
         },
         _ => (),
     }

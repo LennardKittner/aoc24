@@ -3,6 +3,7 @@
 | Day | Part 1 | Part 2 |
 | :---: | :---: | :---:  |
 | [Day 1](./src/days/day1.rs) | `95.67µs` | `92.64µs` |
+| [Day 2](./src/days/day2.rs) | `148.39µs` | `172.87µs` |
 
 Total time: `0s`
 
