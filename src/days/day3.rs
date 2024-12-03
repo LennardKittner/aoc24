@@ -3,7 +3,6 @@ use itertools::Itertools;
 use regex::Regex;
 
 pub fn exec_day3_part1(input: &str) -> String {
-    let input = input.replace('\n', "");
     let regex = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
     let mut sum = 0;
     for capture in regex.captures_iter(&input) {
@@ -14,7 +13,6 @@ pub fn exec_day3_part1(input: &str) -> String {
 }
 
 pub fn exec_day3_part2(input: &str) -> String {
-    let input = input.replace('\n', "");
     let regex = Regex::new(r"mul\((\d+),(\d+)\)|do\(\)|don't\(\)").unwrap();
     let mut sum = 0;
     let mut enabled = true;
