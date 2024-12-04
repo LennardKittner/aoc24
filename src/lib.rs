@@ -12,7 +12,6 @@ use regex::Regex;
 mod days;
 
 //TODO: get input from aoc page
-//TODO: calculate total time
 
 #[allow(dead_code)]
 fn exec<F1: Fn(&str) -> String, F2: Fn(&str) -> String>(day: i32, part1: F1, part2: F2, input: &str) {
@@ -39,17 +38,25 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
     let _ = readme.read_to_string(&mut content).expect("Failed to read README");
     let table_match = content.match_indices(
         "| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |"
-    ).collect_vec()[0];
+    ).collect_vec().first().copied();
+    if table_match.is_none() {
+        println!("This template can automatically recorded the execution time of your solution if the README.md contains: \n| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |");
+        return;
+    }
+    let table_match = table_match.unwrap();
     let first_entry_index = table_match.0 + table_match.1.len();
     let table_header = table_match.1;
+    let match_decimal = r"(?:-?\d+)(?:,?\d+)*(?:\.\d+(?:e\d+)?)?";
 
     let table_rows = &mut content[first_entry_index..].lines().filter_map(|row| {
         if !row.starts_with('|') {
             None
         } else {
-            let re = Regex::new(r"\| \[Day (\d+).*").unwrap();
-            let result: (&str, [&str; 1]) = re.captures(row).unwrap().extract();
-            Some((result.0, i32::from_str(result.1.first().unwrap()).unwrap()))
+            let re = Regex::new(&format!(r"\| \[Day (\d+).* \| `({0})(..)` \| `({0})(..)` \|", match_decimal)).unwrap();
+            let result: (&str, [&str; 5]) = re.captures(row).unwrap().extract();
+            let time1 = (f64::from_str(result.1[1]).unwrap() * if result.1[2] == "ms" { 1000000f64 } else { 1000f64 }) as u64;
+            let time2 = (f64::from_str(result.1[3]).unwrap() * if result.1[3] == "ms" { 1000000f64 } else { 1000f64 }) as u64;
+            Some((result.0, i32::from_str(result.1[0]).unwrap(), time1, time2))
         }
     }).collect_vec();
     let mut old_table = format!("{}\n{}", table_header, table_rows.iter().map(|r| r.0).join("\n"));
@@ -68,12 +75,18 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
         }
     }
     if overwrite {
-        table_rows[insert_at-1 /* zero based */].0 = &entry
+        table_rows[insert_at-1 /* zero based */] = (&entry, day, time_part_1.as_nanos() as u64, time_part_2.as_nanos() as u64);
     } else {
-        table_rows.insert(insert_at, (&entry, day));
+        table_rows.insert(insert_at, (&entry, day, time_part_1.as_nanos() as u64, time_part_2.as_nanos() as u64));
     }
     let new_table = format!("{}\n{}", table_header, table_rows.iter().map(|r| r.0).join("\n"));
-    readme.write_at(content.replace(&old_table, &new_table).as_ref(), 0).expect("Failed to write README");
+
+    let total_time = format!("Total time: `{:?}`", Duration::from_nanos(table_rows.iter().map(|e| e.2 + e.3).sum()));
+    let total_time_regex = Regex::new(&format!("Total time: `{match_decimal}.*`")).unwrap();
+    let old_total_time: (&str, [&str; 0]) = total_time_regex.captures(&content).unwrap().extract();
+
+    let output = content.replace(&old_table, &new_table).replace(old_total_time.0, &total_time);
+    readme.write_at(output.as_ref(), 0).expect("Failed to write README");
 }
 
 fn generate_readme_table_entry(day: i32, time_part_1: Duration, time_part_2: Duration) -> String {

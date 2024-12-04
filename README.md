@@ -3,6 +3,8 @@
 | Day | Part 1 | Part 2 |
 | :---: | :---: | :---:  |
 
+Total time: `0s`
+
 ## Usage
 Generate the files for a day
 ```
