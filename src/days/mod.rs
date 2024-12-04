@@ -5,6 +5,7 @@ use crate::exec;
 mod day3;
 mod day1;
 mod day2;
+mod day4;
 
 
 pub fn run(day: i32) {
@@ -22,6 +23,9 @@ pub fn run(day: i32) {
         },
         2 => {
             exec(2, day2::exec_day2_part1, day2::exec_day2_part2, &input);
+        },
+        4 => {
+            exec(4, day4::exec_day4_part1, day4::exec_day4_part2, &input);
         },
         _ => (),
     }
