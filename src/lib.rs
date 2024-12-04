@@ -11,6 +11,9 @@ use regex::Regex;
 
 mod days;
 
+//TODO: get input from aoc page
+//TODO: calculate total time
+
 #[allow(dead_code)]
 fn exec<F1: Fn(&str) -> String, F2: Fn(&str) -> String>(day: i32, part1: F1, part2: F2, input: &str) {
     let start_time = Instant::now();
@@ -101,6 +104,8 @@ fn generate_match_branches(days: &[i32]) -> String {
 
 pub fn generate(day: i32) {
     let _ = File::create(format!("./input/day{day}.txt")).expect("Failed to generate input");
+    let _ = File::create(format!("./example/day{day}.txt")).expect("Failed to generate example");
+
     let src_file_path = format!("./src/days/day{day}.rs");
     let mod_path = "./src/days/mod.rs";
     let mut days = get_days();
@@ -111,12 +116,36 @@ pub fn generate(day: i32) {
         let mut new_day = File::create(&src_file_path).expect("Failed to generate source.");
         new_day.write_all(formatdoc!{
             r#"
+            #[cfg(test)]
+            use std::fs;
+
+
             pub fn exec_day{day}_part1(input: &str) -> String {{
-                todo!("{{input}}")
+                //TODO
+                "Not implemented!".to_string()
             }}
 
             pub fn exec_day{day}_part2(input: &str) -> String {{
-                todo!("{{input}}")
+                //TODO
+                "Not implemented!".to_string()
+            }}
+
+            #[test]
+            fn test_day{day}_part1() {{
+                let input = match fs::read_to_string("./example/day{day}.txt".to_string()) {{
+                    Ok(s) => s,
+                    Err(_) => panic!(),
+                }};
+                assert_eq!(exec_day{day}_part1(&input), "TODO")
+            }}
+
+            #[test]
+            fn test_day{day}_part2() {{
+                let input = match fs::read_to_string("./example/day{day}.txt".to_string()) {{
+                    Ok(s) => s,
+                    Err(_) => panic!(),
+                }};
+                assert_eq!(exec_day{day}_part2(&input), "TODO")
             }}
             "#
         }.as_bytes()).unwrap_or_else(|_| panic!("Failed to write {src_file_path}."));
@@ -142,7 +171,7 @@ pub fn generate(day: i32) {
         }}
         "#, generate_mod_string(&days), generate_match_branches(&days)
     }.as_bytes()).unwrap_or_else(|_| panic!("Failed to write {mod_path}."));
-    println!("Put your input in ./input/day{day}.txt and your code in ./src/days/day{day}.txt")
+    println!("Put your input in ./input/day{day}.txt, examples in ./example/day{day}.txt, and your code in ./src/days/day{day}.txt")
 }
 
 fn get_days() -> Vec<i32> {
