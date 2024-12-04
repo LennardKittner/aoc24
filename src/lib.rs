@@ -40,7 +40,7 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
         "| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |"
     ).collect_vec().first().copied();
     if table_match.is_none() {
-        println!("This template can automatically recorded the execution time of your solution if the README.md contains: \n| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |");
+        println!("This template can automatically recorded the execution time of your solution if the README.md contains: \n| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |\n\nTotal time: `0s`");
         return;
     }
     let table_match = table_match.unwrap();
@@ -83,9 +83,14 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
 
     let total_time = format!("Total time: `{:?}`", Duration::from_nanos(table_rows.iter().map(|e| e.2 + e.3).sum()));
     let total_time_regex = Regex::new(&format!("Total time: `{match_decimal}.*`")).unwrap();
-    let old_total_time: (&str, [&str; 0]) = total_time_regex.captures(&content).unwrap().extract();
-
-    let output = content.replace(&old_table, &new_table).replace(old_total_time.0, &total_time);
+    let old_total_time = total_time_regex.captures(&content);
+    let mut output = content.replace(&old_table, &new_table);
+    if old_total_time.is_none() {
+        println!("This template can automatically recorded the total execution time of your solution if the README.md contains: \nTotal time: `0s`");
+    } else {
+        let old_total_time: (&str, [&str; 0]) = old_total_time.unwrap().extract();
+        output = output.replace(old_total_time.0, &total_time);
+    }
     readme.write_at(output.as_ref(), 0).expect("Failed to write README");
 }
 
