@@ -84,7 +84,7 @@ pub fn exec_day4_part1(input: &str) -> String {
     count.to_string()
 }
 
-fn contains_x_max(z1: &[u8], z2: &[u8], z3: &[u8]) -> bool {
+fn contains_x_mas(z1: &[u8], z2: &[u8], z3: &[u8]) -> bool {
     (z1[0] == u8::try_from('M').unwrap() &&
     z2[1] == u8::try_from('A').unwrap() &&
     z3[2] == u8::try_from('S').unwrap()
@@ -111,7 +111,7 @@ pub fn exec_day4_part2(input: &str) -> String {
             let z1 = &grid[i][j..(j + 3)];
             let z2 = &grid[i+1][j..(j + 3)];
             let z3 = &grid[i+2][j..(j + 3)];
-            if contains_x_max(z1, z2, z3) {
+            if contains_x_mas(z1, z2, z3) {
                 count += 1;
             }
         }
