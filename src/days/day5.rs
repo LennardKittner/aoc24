@@ -7,7 +7,7 @@ use itertools::Itertools;
 fn find_passing_orders(input: &str) -> (i32, HashMap<i32, Vec<i32>>, Vec<Vec<i32>>) {
     let input = input.split("\n\n").collect_vec();
     let rules = input[0].lines().map(|l| {
-        let parts = l.split("|").collect_vec();
+        let parts = l.split('|').collect_vec();
         let left: i32 = parts[0].parse().unwrap();
         let right: i32 = parts[1].parse().unwrap();
         (right, left)
@@ -20,7 +20,7 @@ fn find_passing_orders(input: &str) -> (i32, HashMap<i32, Vec<i32>>, Vec<Vec<i32
             dependencies.insert(rule.0, vec![rule.1]);
         }
     }
-    let prints = input[1].lines().map(|l| l.split(",").map(|n| i32::from_str(n).unwrap()).collect_vec()).collect_vec();
+    let prints = input[1].lines().map(|l| l.split(',').map(|n| i32::from_str(n).unwrap()).collect_vec()).collect_vec();
     let mut sum = 0;
     let mut not_passing = Vec::new();
     for print in prints {
@@ -54,7 +54,7 @@ pub fn exec_day5_part1(input: &str) -> String {
 pub fn exec_day5_part2(input: &str) -> String {
     let (_, dependencies, mut wrong_prints) = find_passing_orders(input);
 
-    for mut print in &mut wrong_prints {
+    for print in &mut wrong_prints {
         let mut i :i32 = 0;
         let mut seen = HashSet::new();
 
