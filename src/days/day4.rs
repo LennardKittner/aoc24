@@ -42,6 +42,7 @@ pub fn exec_day4_part1(input: &str) -> String {
     //Vertical
     let mut columns = Vec::new();
     for i in 0..grid[0].len() {
+        #[allow(clippy::needless_range_loop)]
         for j in 0..grid.len() {
             columns.push(grid[j][i]);
         }
@@ -52,6 +53,7 @@ pub fn exec_day4_part1(input: &str) -> String {
     //Diagonal right
     let mut diagonals = Vec::new();
     for j in 0..grid[0].len() {
+        #[allow(clippy::needless_range_loop)]
         for i in 0..min(grid[0].len()-j, grid.len()) {
             diagonals.push(grid[i][i+j])
         }
@@ -68,6 +70,7 @@ pub fn exec_day4_part1(input: &str) -> String {
     //Diagonal left
     diagonals.clear();
     for j in 0..grid[0].len() {
+        #[allow(clippy::needless_range_loop)]
         for i in 0..min(j+1, grid.len()) {
             diagonals.push(grid[i][j-i])
         }
