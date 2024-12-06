@@ -7,9 +7,9 @@
 | [Day 3](./src/days/day3.rs) | `402.42µs` | `375.09µs` |
 | [Day 4](./src/days/day4.rs) | `333.93µs` | `106.30µs` |
 | [Day 5](./src/days/day5.rs) | `640.04µs` | `3461.84µs` |
-| [Day 6](./src/days/day6.rs) | `103.43µs` | `174198.05µs` |
+| [Day 6](./src/days/day6.rs) | `191.62µs` | `112174.07µs` |
 
-Total time: `180.130673ms`
+Total time: `118.194879ms`
 
 ## Usage
 Generate the files for a day
@@ -21,6 +21,9 @@ Run the code of a day
 ```
 cargo solve <day>
 ```
+
+
+
 
 
 

@@ -1,6 +1,8 @@
 #[cfg(test)]
 use std::fs;
 use itertools::Itertools;
+use rayon::iter::ParallelIterator;
+use rayon::iter::ParallelBridge;
 use crate::days::day6::Direction::{Up, Left, Right, Down};
 use crate::days::day6::State::{Blocked, Free, Visited, Guard};
 
@@ -17,7 +19,7 @@ enum State {
     Guard(Direction),
     Free,
     Blocked,
-    Visited(Direction)
+    Visited(i64)
 }
 
 impl State {
@@ -39,30 +41,87 @@ impl State {
             _ => panic!()
         }
     }
-    fn is_visited(&self) -> bool {
-        match self {
-            Visited(_) => true,
-            _ => false
-        }
-    }
     fn get_direction(&self) -> Direction {
         match self {
             Guard(d) => *d,
-            Visited(d) => *d,
             _ => panic!()
         }
     }
     fn is_guard(&self) -> bool {
-        match self {
-            Guard(_) => true,
-            _ => false
-        }
+        matches!(self, Guard(_))
     }
 }
 
 pub fn exec_day6_part1(input: &str) -> String {
+    let (mut guard_position, mut grid) = parse_input(input);
+    let num_visited = simulate_guard(&mut guard_position, &mut grid);
+    num_visited.unwrap().to_string()
+}
+
+fn simulate_guard(guard_position: &mut (usize, usize), grid: &mut [Vec<State>]) -> Option<i64> {
+    let mut num_visited = 1;
+    loop {
+        let direction = grid[guard_position.0][guard_position.1].direction_vector();
+        let new_position = (guard_position.0 as i32 + direction.0, guard_position.1 as i32 + direction.1);
+        if !(0..(grid.len() as i32)).contains(&new_position.0) || !(0..(grid[0].len() as i32)).contains(&new_position.1) {
+            return Some(num_visited);
+        }
+        let current_state = grid[new_position.0 as usize][new_position.1 as usize];
+        match current_state {
+            Free => {
+                let previous_direction = grid[guard_position.0][guard_position.1].get_direction();
+                grid[guard_position.0][guard_position.1] = Visited(num_visited);
+                *guard_position = (new_position.0 as usize, new_position.1 as usize);
+                grid[guard_position.0][guard_position.1] = Guard(previous_direction);
+                num_visited += 1;
+            }
+            Blocked => {
+                let previous_state = grid[guard_position.0][guard_position.1];
+                grid[guard_position.0][guard_position.1] =  previous_state.turn_right();
+            }
+            Visited(last_seen) => {
+                let previous_direction = grid[guard_position.0][guard_position.1].get_direction();
+                if last_seen == num_visited {
+                    return None;
+                }
+                grid[guard_position.0][guard_position.1] = Visited(num_visited);
+                *guard_position = (new_position.0 as usize, new_position.1 as usize);
+                grid[guard_position.0][guard_position.1] = Guard(previous_direction);
+            }
+            _ => panic!()
+        }
+    }
+}
+
+pub fn exec_day6_part2(input: &str) -> String {
+    let (initial_guard_position, mut comparison_grid) = parse_input(input);
+    let const_grid = comparison_grid.clone();
+    let mut guard_position = initial_guard_position;
+    let _ = simulate_guard(&mut guard_position, &mut comparison_grid);
+    comparison_grid[guard_position.0][guard_position.1] = Visited(0);
+    comparison_grid[initial_guard_position.0][initial_guard_position.1] = Guard(Up);
+
+    let num_loops: i32 = (0..comparison_grid.len()).cartesian_product(0..comparison_grid[0].len()).par_bridge().map(|(i, j)| {
+        let mut guard_position = initial_guard_position;
+        let mut grid = const_grid.clone();
+        let start_state = comparison_grid[i][j];
+        if start_state == Free || start_state == Blocked || start_state.is_guard() {
+            return 0;
+        }
+        grid[i][j] = Blocked;
+        if simulate_guard(&mut guard_position, &mut grid).is_some() {
+            0
+        } else {
+            1
+        }
+    }).sum();
+
+    num_loops.to_string()
+}
+
+fn parse_input(input: &str) -> ((usize, usize), Vec<Vec<State>>) {
     let mut guard_position = (0, 0);
-    let mut grid = input.to_string().lines().map(|l| l.chars().map(|b| match b {
+    let grid = input.to_string().lines().map(|l| l.chars().map(|b| match b {
         '.' => Free,
         '^' => Guard(Up),
         '#' => Blocked,
@@ -77,140 +136,7 @@ pub fn exec_day6_part1(input: &str) -> String {
             }
         }
     }
-    let mut num_visited = 1;
-    loop {
-        let direction = grid[guard_position.0][guard_position.1].direction_vector();
-        let new_position = (guard_position.0 as i32 + direction.0, guard_position.1 as i32 + direction.1);
-        if !(0..(grid.len() as i32)).contains(&new_position.0) || !(0..(grid[0].len() as i32)).contains(&new_position.1) {
-            break;
-        }
-        let current_state = grid[new_position.0 as usize][new_position.1 as usize];
-        match current_state {
-            Free => {
-                let previous_direction = grid[guard_position.0][guard_position.1].get_direction();
-                grid[guard_position.0][guard_position.1] = Visited(previous_direction);
-                guard_position = (new_position.0 as usize, new_position.1 as usize);
-                grid[guard_position.0][guard_position.1] = Guard(previous_direction);
-                num_visited += 1;
-            }
-            Blocked => {
-                let previous_direction = grid[guard_position.0][guard_position.1];
-                grid[guard_position.0][guard_position.1] = previous_direction.turn_right();
-            }
-            Visited(_) => {
-                let previous_direction = grid[guard_position.0][guard_position.1].get_direction();
-                grid[guard_position.0][guard_position.1] = Visited(previous_direction);
-                guard_position = (new_position.0 as usize, new_position.1 as usize);
-                grid[guard_position.0][guard_position.1] = Guard(previous_direction);
-            }
-            _ => panic!()
-        }
-    }
-    num_visited.to_string()
-}
-
-pub fn exec_day6_part2(input: &str) -> String {
-    let mut initial_guard_position = (0, 0);
-    let mut initial_grid = input.to_string().lines().map(|l| l.chars().map(|b| match b {
-        '.' => Free,
-        '^' => Guard(Up),
-        '#' => Blocked,
-        _ => panic!("invalid char")
-    }).collect_vec()
-    ).collect_vec();
-    'outer: for i in 0..initial_grid.len() {
-        for j in 0..initial_grid[0].len() {
-            if initial_grid[i][j] == Guard(Up) {
-                initial_guard_position = (i, j);
-                break 'outer;
-            }
-        }
-    }
-    let const_grid = initial_grid.clone();
-    let mut guard_position = initial_guard_position;
-    loop {
-        let direction = initial_grid[guard_position.0][guard_position.1].direction_vector();
-        let new_position = (guard_position.0 as i32 + direction.0, guard_position.1 as i32 + direction.1);
-        if !(0..(initial_grid.len() as i32)).contains(&new_position.0) || !(0..(initial_grid[0].len() as i32)).contains(&new_position.1) {
-            break;
-        }
-        let current_state = initial_grid[new_position.0 as usize][new_position.1 as usize];
-        match current_state {
-            Free => {
-                let previous_direction = initial_grid[guard_position.0][guard_position.1].get_direction();
-                initial_grid[guard_position.0][guard_position.1] = Visited(previous_direction);
-                guard_position = (new_position.0 as usize, new_position.1 as usize);
-                initial_grid[guard_position.0][guard_position.1] = Guard(previous_direction);
-            }
-            Blocked => {
-                let previous_direction = initial_grid[guard_position.0][guard_position.1];
-                initial_grid[guard_position.0][guard_position.1] = previous_direction.turn_right();
-            }
-            Visited(_) => {
-                let previous_direction = initial_grid[guard_position.0][guard_position.1].get_direction();
-                initial_grid[guard_position.0][guard_position.1] = Visited(previous_direction);
-                guard_position = (new_position.0 as usize, new_position.1 as usize);
-                initial_grid[guard_position.0][guard_position.1] = Guard(previous_direction);
-            }
-            _ => panic!()
-        }
-    }
-    initial_grid[guard_position.0][guard_position.1] = Visited(Down);
-    initial_grid[initial_guard_position.0][initial_guard_position.1] = Guard(Up);
-
-    let mut num_loops = 0;
-    let mut tries = -1;
-    let mut num_loops_early_out = 0;
-    for i in 0..initial_grid.len() {
-        for j in 0..initial_grid[0].len() {
-            let mut guard_position = initial_guard_position;
-            let mut grid = const_grid.clone();
-            let previous_state = initial_grid[i][j];
-            if previous_state == Free || previous_state == Blocked || previous_state.is_guard() {
-                continue;
-            }
-            tries += 1;
-            grid[i][j] = Blocked;
-            let mut found_loop = true;
-            for _ in 0..(grid.len()*50) {
-                let direction = grid[guard_position.0][guard_position.1].direction_vector();
-                let new_position = (guard_position.0 as i32 + direction.0, guard_position.1 as i32 + direction.1);
-                if !(0..(grid.len() as i32)).contains(&new_position.0) || !(0..(grid[0].len() as i32)).contains(&new_position.1) {
-                    found_loop = false;
-                    break;
-                }
-                let current_state = grid[new_position.0 as usize][new_position.1 as usize];
-                match current_state {
-                    Free => {
-                        let previous_direction = grid[guard_position.0][guard_position.1].get_direction();
-                        grid[guard_position.0][guard_position.1] = Visited(previous_direction);
-                        guard_position = (new_position.0 as usize, new_position.1 as usize);
-                        grid[guard_position.0][guard_position.1] = Guard(previous_direction);
-                    }
-                    Blocked => {
-                        let previous_state = grid[guard_position.0][guard_position.1];
-                        grid[guard_position.0][guard_position.1] =  previous_state.turn_right();
-                    }
-                    Visited(old_direction) => {
-                        let previous_direction = grid[guard_position.0][guard_position.1].get_direction();
-                        if old_direction == previous_direction {
-                            num_loops_early_out += 1;
-                            break;
-                        }
-                        grid[guard_position.0][guard_position.1] = Visited(previous_direction);
-                        guard_position = (new_position.0 as usize, new_position.1 as usize);
-                        grid[guard_position.0][guard_position.1] = Guard(previous_direction);
-                    }
-                    _ => panic!()
-                }
-            }
-            if found_loop {
-                num_loops += 1;
-            }
-        }
-    }
-    println!("{num_loops_early_out}");
-    num_loops.to_string()
+    (guard_position, grid)
 }
 
 #[test]
