@@ -93,7 +93,7 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
 }
 
 fn generate_readme_table_entry(day: i32, time_part_1: Duration, time_part_2: Duration) -> String {
-    if max(time_part_1.as_millis(), time_part_1.as_millis()) < 2 {
+    if max(time_part_1.as_millis(), time_part_2.as_millis()) < 2 {
         format!("| [Day {day}](./src/days/day{day}.rs) | `{:.2}µs` | `{:.2}µs` |", time_part_1.as_secs_f64() * 1000f64 * 1000f64, time_part_2.as_secs_f64() * 1000f64 * 1000f64)
     } else {
         format!("| [Day {day}](./src/days/day{day}.rs) | `{:.2}ms` | `{:.2}ms` |", time_part_1.as_secs_f64() * 1000f64, time_part_2.as_secs_f64() * 1000f64)
