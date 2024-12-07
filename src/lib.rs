@@ -53,7 +53,7 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
             let re = Regex::new(&format!(r"\| \[Day (\d+).* \| `({0})(..)` \| `({0})(..)` \|", match_decimal)).unwrap();
             let result: (&str, [&str; 5]) = re.captures(row).unwrap().extract();
             let time1 = (f64::from_str(result.1[1]).unwrap() * if result.1[2] == "ms" { 1000000f64 } else { 1000f64 }) as u64;
-            let time2 = (f64::from_str(result.1[3]).unwrap() * if result.1[3] == "ms" { 1000000f64 } else { 1000f64 }) as u64;
+            let time2 = (f64::from_str(result.1[3]).unwrap() * if result.1[4] == "ms" { 1000000f64 } else { 1000f64 }) as u64;
             Some((result.0, i32::from_str(result.1[0]).unwrap(), time1, time2))
         }
     }).collect_vec();
