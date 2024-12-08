@@ -3,17 +3,10 @@ use std::fs;
 use std::str::FromStr;
 use itertools::Itertools;
 use rayon::iter::Map;
-use crate::days::day7::Operator::{Addition, Concat, Multiply};
 use rayon::iter::ParallelIterator;
 use rayon::prelude::ParallelString;
 use rayon::str::Lines;
 
-#[derive(Copy, Clone)]
-enum Operator {
-    Multiply,
-    Addition,
-    Concat
-}
 
 fn check1(end_result: u64, current_result: u64, operants: &[u64]) -> bool {
     if end_result == current_result && operants.is_empty() {
@@ -36,6 +29,7 @@ pub fn exec_day7_part1(input: &str) -> String {
     }).sum::<u64>().to_string()
 }
 
+#[allow(clippy::type_complexity)]
 fn parse_input(input: &str) -> Map<Lines<'_>, fn(&str) -> (u64, Vec<u64>)> {
     input.par_lines().map(|l| {
         let mut numbers = l.split_whitespace();
