@@ -42,8 +42,8 @@ fn calc_antinode_location2(n1: (usize, usize), n2: (usize, usize), bound0: Range
 pub fn exec_day8_part1(input: &str) -> String {
     let (grid, antennas) = parse_input(input);
     let antinode_locations: HashSet<(usize, usize)> = antennas.values().flat_map(|antenas|
-        antenas.iter().combinations(2).filter_map(|antenas| {
-            let location = calc_antinode_location(*antenas[0], *antenas[1]);
+        antenas.iter().tuple_combinations().filter_map(|(a1, a2)| {
+            let location = calc_antinode_location(*a1, *a2);
             let mut result = Vec::new();
             if (0..grid.len()).contains(&location.0.0) && (0..grid[0].len()).contains(&location.0.1) {
                 result.push(location.0);
@@ -68,8 +68,8 @@ pub fn exec_day8_part1(input: &str) -> String {
 pub fn exec_day8_part2(input: &str) -> String {
     let (grid, antennas) = parse_input(input);
     let antinode_locations: HashSet<(usize, usize)> = antennas.values().flat_map(|antenas|
-        antenas.iter().combinations(2).filter_map(|antenas| {
-            let result = calc_antinode_location2(*antenas[0], *antenas[1], 0..grid.len(), 0..grid[0].len());
+        antenas.iter().tuple_combinations().filter_map(|(a1, a2)| {
+            let result = calc_antinode_location2(*a1, *a2, 0..grid.len(), 0..grid[0].len());
             if !result.is_empty() {
                 Some(result)
             } else {
