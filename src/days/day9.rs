@@ -43,20 +43,20 @@ pub fn exec_day9_part2(input: &str) -> String {
     let mut right = input.len()-1;
     let mut checksum = 0;
     let mut right_position: usize = 0;
-    for (i, _) in input.iter().take(input.len()-1) {
+    for (i, _) in input.iter() {
         right_position += *i as usize;
     }
 
     while 0 < right {
         let mut left_position: usize = 0;
-        while input[right].0 == 0 || right % 2 == 1 {
-            if right % 2 == 1 {
-                right_position -= (input[right].0 + input[right].1) as usize;
-            }
+        if right % 2 == 1 {
+            right_position -= (input[right].0 + input[right].1) as usize;
             right -= 1;
+            continue;
         }
-        if right < 0 {
-            break;
+        if input[right].0 == 0 {
+            right -= 1;
+            continue;
         }
         let mut file_moved = false;
         let right_file_id = right / 2;
@@ -65,20 +65,24 @@ pub fn exec_day9_part2(input: &str) -> String {
             let left_is_file = left % 2 == 0;
             let rest_of_block = input[left].0 as usize;
             left_position += input[left].1 as usize;
-            if left_is_file {
-                continue;
-            } else if input[left].0 > input[right].0 {
+            if !left_is_file && input[left].0 >= input[right].0 {
                 file_moved = true;
                 input[left].0 -= input[right].0;
                 input[left].1 += input[right].0;
-                checksum += right_file_id * left_position;
+                for i in left_position..(left_position + input[right].0 as usize) {
+                    checksum += right_file_id * i;
+                }
+                break;
             }
             left_position += rest_of_block;
         }
         if !file_moved {
-            checksum += right_file_id * right_position;
+            for i in (right_position-input[right].0 as usize)..right_position {
+                checksum += right_file_id * i;
+            }
         }
         right_position -= (input[right].0 + input[right].1) as usize;
+        right -= 1;
     }
     checksum.to_string()
 }
@@ -89,13 +93,6 @@ fn test_day9_part1() {
         Ok(s) => s,
         Err(_) => panic!(),
     };
-    // let solution = "0099811188827773336446555566".bytes().map(|c| c - u8::try_from('0').unwrap()).collect_vec();
-    // let mut sum = 0;
-    // for (i, c) in solution.iter().enumerate() {
-    //     let old_sum = sum;
-    //     sum += i * *c as usize;
-    //     println!("{sum} = {sum} + {i} * {c}");
-    // }
     assert_eq!(exec_day9_part1(&input), "1928")
 }
 
