@@ -12,8 +12,9 @@
 | [Day 8](./src/days/day8.rs) | `46.37µs` | `103.99µs` |
 | [Day 9](./src/days/day9.rs) | `0.23ms` | `27.46ms` |
 | [Day 10](./src/days/day10.rs) | `271.28µs` | `218.98µs` |
+| [Day 11](./src/days/day11.rs) | `0.23ms` | `7.58ms` |
 
-Total time: `145.962849ms`
+Total time: `153.774527ms`
 
 ## Usage
 Generate the files for a day
