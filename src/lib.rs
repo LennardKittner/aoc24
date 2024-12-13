@@ -38,7 +38,7 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
         "| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |"
     ).collect_vec().first().copied();
     if table_match.is_none() {
-        println!("This template can automatically recorded the execution time of your solution if the README.md contains: \n| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |\n\nTotal time: `0s`");
+        println!("This template can automatically recorde the execution time of your solution if the README.md contains: \n| Day | Part 1 | Part 2 |\n| :---: | :---: | :---:  |\n\nTotal time: `0s`");
         return;
     }
     let table_match = table_match.unwrap();
