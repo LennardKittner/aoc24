@@ -1,6 +1,5 @@
 #[cfg(test)]
 use std::fs;
-use std::i64;
 use std::str::FromStr;
 use itertools::Itertools;
 use regex::Regex;
@@ -13,7 +12,7 @@ use regex::Regex;
 // f -> py
 
 fn solve_equations((a, c): (i64, i64), (b, d): (i64, i64), (g, f): (i64, i64)) -> Option<(i64, i64)> {
-    let mut solution = (0, 0);
+    let solution;
     if a != 0 && b*c - d*g != 0 {
         let det = b*c - a*d;
         solution = ((b*f - d*g) / det, (c*g - a*f) / det)
