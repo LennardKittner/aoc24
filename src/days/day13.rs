@@ -2,7 +2,6 @@
 use std::fs;
 use std::str::FromStr;
 use itertools::Itertools;
-use regex::Regex;
 
 // a -> ax
 // c -> ay
@@ -29,11 +28,15 @@ fn solve_equations((a, c): (i64, i64), (b, d): (i64, i64), (g, f): (i64, i64)) -
 pub fn exec_day13_part1(input: &str) -> String {
     let machines = input.split("\n\n").map(|machine| {
         let mut lines = machine.lines();
-        let regex_button = Regex::new(r"Button .: X+(.+), Y+(.+)").unwrap();
-        let regex_price = Regex::new(r"Prize: X=(.+), Y=(.+)").unwrap();
-        let (_, [xa, ya]): (&str, [&str; 2]) = regex_button.captures(lines.next().unwrap()).unwrap().extract();
-        let (_, [xb, yb]): (&str, [&str; 2]) = regex_button.captures(lines.next().unwrap()).unwrap().extract();
-        let (_, [xp, yp]): (&str, [&str; 2]) = regex_price.captures(lines.next().unwrap()).unwrap().extract();
+        let mut button_a = lines.next().unwrap()[12..].split(", Y+");
+        let xa = button_a.next().unwrap();
+        let ya = button_a.next().unwrap();
+        let mut button_a = lines.next().unwrap()[12..].split(", Y+");
+        let xb = button_a.next().unwrap();
+        let yb = button_a.next().unwrap();
+        let mut price = lines.next().unwrap()[9..].split(", Y=");
+        let xp = price.next().unwrap();
+        let yp = price.next().unwrap();
         ((i64::from_str(xa).unwrap(), i64::from_str(ya).unwrap()), (i64::from_str(xb).unwrap(), i64::from_str(yb).unwrap()), (i64::from_str(xp).unwrap(), i64::from_str(yp).unwrap()))
     }).collect_vec();
     let mut result = 0;
@@ -48,11 +51,15 @@ pub fn exec_day13_part1(input: &str) -> String {
 pub fn exec_day13_part2(input: &str) -> String {
     let machines = input.split("\n\n").map(|machine| {
         let mut lines = machine.lines();
-        let regex_button = Regex::new(r"Button .: X+(.+), Y+(.+)").unwrap();
-        let regex_price = Regex::new(r"Prize: X=(.+), Y=(.+)").unwrap();
-        let (_, [xa, ya]): (&str, [&str; 2]) = regex_button.captures(lines.next().unwrap()).unwrap().extract();
-        let (_, [xb, yb]): (&str, [&str; 2]) = regex_button.captures(lines.next().unwrap()).unwrap().extract();
-        let (_, [xp, yp]): (&str, [&str; 2]) = regex_price.captures(lines.next().unwrap()).unwrap().extract();
+        let mut button_a = lines.next().unwrap()[12..].split(", Y+");
+        let xa = button_a.next().unwrap();
+        let ya = button_a.next().unwrap();
+        let mut button_a = lines.next().unwrap()[12..].split(", Y+");
+        let xb = button_a.next().unwrap();
+        let yb = button_a.next().unwrap();
+        let mut price = lines.next().unwrap()[9..].split(", Y=");
+        let xp = price.next().unwrap();
+        let yp = price.next().unwrap();
         ((i64::from_str(xa).unwrap(), i64::from_str(ya).unwrap()), (i64::from_str(xb).unwrap(), i64::from_str(yb).unwrap()), (i64::from_str(xp).unwrap()+10000000000000, i64::from_str(yp).unwrap()+10000000000000))
     }).collect_vec();
     let mut result = 0;
