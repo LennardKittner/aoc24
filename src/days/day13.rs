@@ -16,7 +16,7 @@ fn solve_equations((a, c): (i64, i64), (b, d): (i64, i64), (g, f): (i64, i64)) -
         let det = b*c - a*d;
         solution = ((b*f - d*g) / det, (c*g - a*f) / det)
     } else {
-        panic!("I only implemented on of the possible solutions as this sufficed for my input and I assumed it would work of any input")
+        panic!("I only implemented one of the possible solutions as this sufficed for my input and I assumed it would work for any input")
     }
     if solution.0*a + solution.1*b == g && solution.0*c + solution.1*d == f {
         Some(solution)
