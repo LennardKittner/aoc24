@@ -89,6 +89,7 @@ fn add_day_to_readme_table(day: i32, time_part_1: Duration, time_part_2: Duratio
         let old_total_time: (&str, [&str; 0]) = old_total_time.unwrap().extract();
         output = output.replace(old_total_time.0, &total_time);
     }
+    readme.set_len(output.len() as u64).expect("Failed to resize file");
     readme.write_at(output.as_ref(), 0).expect("Failed to write README");
 }
 
