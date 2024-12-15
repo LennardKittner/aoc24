@@ -47,31 +47,46 @@ enum Direction {
     Right
 }
 
+struct ExplorationReport {
+    area: u64,
+    perimeter_up: Vec<(usize, usize)>,
+    perimeter_down: Vec<(usize, usize)>,
+    perimeter_left: Vec<(usize, usize)>,
+    perimeter_right: Vec<(usize, usize)>,
+}
+
+impl ExplorationReport {
+    fn push_perimeter(&mut self, direction: Direction, value: (usize, usize)) {
+        match direction {
+            Up => self.perimeter_up.push(value),
+            Down => self.perimeter_down.push(value),
+            Left => self.perimeter_left.push(value),
+            Right => self.perimeter_right.push(value),
+        }
+    }
+}
+
 #[allow(clippy::type_complexity)]
-fn explore_region2(grid: &mut [Vec<(u8, bool)>], start: (usize, usize), char_of_region: u8, current_direction: Direction) -> (u64, Vec<((usize, usize), Direction)>) {
+fn explore_region2(grid: &mut [Vec<(u8, bool)>], start: (usize, usize), char_of_region: u8, current_direction: Direction, report: &mut ExplorationReport) {
     if !(0..grid.len()).contains(&start.0) || !(0..grid[0].len()).contains(&start.1) {
-        return (0, vec![(start, current_direction)]);
+        report.push_perimeter(current_direction, start);
+        return;
     }
     if grid[start.0][start.1].0 != char_of_region {
-        return (0, vec![(start, current_direction)]);
+        report.push_perimeter(current_direction, start);
+        return;
     }
     if grid[start.0][start.1].1 {
-        return (0, vec![]);
+        return;
     }
     grid[start.0][start.1].1 = true;
 
-    let mut right = explore_region2(grid, (start.0+1, start.1), char_of_region, Down);
-    let mut left = explore_region2(grid, (start.0.wrapping_sub(1), start.1), char_of_region, Up);
-    let mut up = explore_region2(grid, (start.0, start.1+1), char_of_region, Right);
-    let mut down = explore_region2(grid, (start.0, start.1.wrapping_sub(1)), char_of_region, Left);
+    explore_region2(grid, (start.0+1, start.1), char_of_region, Down, report);
+    explore_region2(grid, (start.0.wrapping_sub(1), start.1), char_of_region, Up, report);
+    explore_region2(grid, (start.0, start.1+1), char_of_region, Right, report);
+    explore_region2(grid, (start.0, start.1.wrapping_sub(1)), char_of_region, Left, report);
 
-    let mut perimeter = Vec::new();
-    perimeter.append(&mut right.1);
-    perimeter.append(&mut left.1);
-    perimeter.append(&mut up.1);
-    perimeter.append(&mut down.1);
-
-    (1 + right.0 + left.0 + up.0 + down.0, perimeter)
+    report.area += 1;
 }
 
 fn count_horizontals(perimeter_x: &[(usize, usize)]) -> u64 {
@@ -94,23 +109,14 @@ fn count_verticals(perimeter_y: &[(usize, usize)]) -> u64 {
     result
 }
 
-fn calc_sides(perimeter: &[((usize, usize), Direction)]) -> u64 {
-    if perimeter.is_empty() {
+fn calc_sides(report: &mut ExplorationReport) -> u64 {
+    if report.perimeter_up.is_empty() {
         return 0;
     }
-    let mut perimeter_up = Vec::new();
-    let mut perimeter_down = Vec::new();
-    let mut perimeter_left = Vec::new();
-    let mut perimeter_right = Vec::new();
-
-    for e in perimeter {
-        match e.1 {
-            Up => perimeter_up.push(e.0),
-            Down => perimeter_down.push(e.0),
-            Left => perimeter_left.push(e.0),
-            Right => perimeter_right.push(e.0),
-        }
-    }
+    let perimeter_up = &mut report.perimeter_up;
+    let perimeter_down = &mut report.perimeter_down;
+    let perimeter_left = &mut report.perimeter_left;
+    let perimeter_right = &mut report.perimeter_right;
 
     let sort_routine = |a: &(usize, usize), b: &(usize, usize)| {
         if a.1 > b.1 {
@@ -131,10 +137,10 @@ fn calc_sides(perimeter: &[((usize, usize), Direction)]) -> u64 {
     perimeter_left.sort_by(sort_routine);
     perimeter_right.sort_by(sort_routine);
 
-    let mut result = count_horizontals(&perimeter_up);
-    result += count_horizontals(&perimeter_down);
-    result += count_verticals(&perimeter_left);
-    result += count_verticals(&perimeter_right);
+    let mut result = count_horizontals(perimeter_up);
+    result += count_horizontals(perimeter_down);
+    result += count_verticals(perimeter_left);
+    result += count_verticals(perimeter_right);
 
     result
 }
@@ -147,8 +153,15 @@ pub fn exec_day12_part2(input: &str) -> String {
     for i in 0..grid.len() {
         for j in 0..grid[0].len() {
             let c = grid[i][j].0;
-            let (area, perimeter) = explore_region2(&mut grid, (i, j), c, Left);
-            result += area * calc_sides(&perimeter);
+            let mut report = ExplorationReport {
+                area: 0,
+                perimeter_up: vec![],
+                perimeter_down: vec![],
+                perimeter_left: vec![],
+                perimeter_right: vec![],
+            };
+            explore_region2(&mut grid, (i, j), c, Left, &mut report);
+            result += report.area * calc_sides(&mut report);
         }
     }
     result.to_string()

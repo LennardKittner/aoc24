@@ -13,12 +13,12 @@
 | [Day 9](./src/days/day9.rs) | `0.23ms` | `27.46ms` |
 | [Day 10](./src/days/day10.rs) | `271.28µs` | `218.98µs` |
 | [Day 11](./src/days/day11.rs) | `0.23ms` | `7.58ms` |
-| [Day 12](./src/days/day12.rs) | `0.30ms` | `2.03ms` |
+| [Day 12](./src/days/day12.rs) | `337.82µs` | `831.10µs` |
 | [Day 13](./src/days/day13.rs) | `49.05µs` | `40.48µs` |
 | [Day 14](./src/days/day14.rs) | `0.05ms` | `43.04ms` |
 | [Day 15](./src/days/day15.rs) | `272.51µs` | `334.55µs` |
 
-Total time: `199.8879ms`
+Total time: `198.728359ms`
 
 ## Usage
 Generate the files for a day
