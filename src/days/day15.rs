@@ -77,9 +77,9 @@ pub fn exec_day15_part1(input: &str) -> String {
     }
 
     for move_ in moves {
-        let mut next_position = (move_.0 + current_position.0, move_.1 + current_position.1);
+        let next_position = (move_.0 + current_position.0, move_.1 + current_position.1);
         match grid[next_position.1  as usize][next_position.0  as usize] {
-            Wall => next_position = current_position,
+            Wall => (),
             Boxx => current_position = simulate_box_move(&mut grid, current_position, move_),
             Robot => panic!("two robots"),
             Free => {
@@ -163,7 +163,7 @@ pub fn exec_day15_part2(input: &str) -> String {
     let (grid, moves) = input.split("\n\n").collect_tuple().unwrap();
     let mut current_position = (0, 0);
     let mut grid = grid.lines().map(|l| {
-        l.chars().map(|c|
+        l.chars().flat_map(|c|
             match c {
                 '#' => [Entity2::Wall, Entity2::Wall],
                 '.' => [Entity2::Free, Entity2::Free],
@@ -171,7 +171,7 @@ pub fn exec_day15_part2(input: &str) -> String {
                 '@' => [Entity2::Robot, Entity2::Free],
                 _ => panic!("Unknown char")
             }
-        ).flatten().collect_vec()
+        ).collect_vec()
     }).collect_vec();
     let moves = moves.replace('\n', "").chars().map(|c|
         match c {
@@ -193,7 +193,7 @@ pub fn exec_day15_part2(input: &str) -> String {
     }
 
     for move_ in moves {
-        let mut next_position = (move_.0 + current_position.0, move_.1 + current_position.1);
+        let next_position = (move_.0 + current_position.0, move_.1 + current_position.1);
         match grid[next_position.1  as usize][next_position.0  as usize] {
             Entity2::Wall => continue,
             Entity2::BoxL | Entity2::BoxR => {
