@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 #[cfg(test)]
 use std::fs;
 use itertools::Itertools;
+use crate::days::day12::Direction::{Down, Left, Right, Up};
 
 fn explore_region(grid: &mut [Vec<(u8, bool)>], start: (usize, usize), char_of_region: u8) -> (u64, u64) {
     if !(0..grid.len()).contains(&start.0) || !(0..grid[0].len()).contains(&start.1) {
@@ -38,22 +39,31 @@ pub fn exec_day12_part1(input: &str) -> String {
     result.to_string()
 }
 
-fn explore_region2(grid: &mut [Vec<(u8, bool)>], start: (usize, usize), char_of_region: u8) -> (u64, Vec<(usize, usize)>) {
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+#[allow(clippy::type_complexity)]
+fn explore_region2(grid: &mut [Vec<(u8, bool)>], start: (usize, usize), char_of_region: u8, current_direction: Direction) -> (u64, Vec<((usize, usize), Direction)>) {
     if !(0..grid.len()).contains(&start.0) || !(0..grid[0].len()).contains(&start.1) {
-        return (0, vec![start]);
+        return (0, vec![(start, current_direction)]);
     }
     if grid[start.0][start.1].0 != char_of_region {
-        return (0, vec![start]);
+        return (0, vec![(start, current_direction)]);
     }
     if grid[start.0][start.1].1 {
         return (0, vec![]);
     }
     grid[start.0][start.1].1 = true;
 
-    let mut right = explore_region2(grid, (start.0+1, start.1), char_of_region);
-    let mut left = explore_region2(grid, (start.0.wrapping_sub(1), start.1), char_of_region);
-    let mut up = explore_region2(grid, (start.0, start.1+1), char_of_region);
-    let mut down = explore_region2(grid, (start.0, start.1.wrapping_sub(1)), char_of_region);
+    let mut right = explore_region2(grid, (start.0+1, start.1), char_of_region, Down);
+    let mut left = explore_region2(grid, (start.0.wrapping_sub(1), start.1), char_of_region, Up);
+    let mut up = explore_region2(grid, (start.0, start.1+1), char_of_region, Right);
+    let mut down = explore_region2(grid, (start.0, start.1.wrapping_sub(1)), char_of_region, Left);
 
     let mut perimeter = Vec::new();
     perimeter.append(&mut right.1);
@@ -64,14 +74,45 @@ fn explore_region2(grid: &mut [Vec<(u8, bool)>], start: (usize, usize), char_of_
     (1 + right.0 + left.0 + up.0 + down.0, perimeter)
 }
 
-fn calc_sides(perimeter: &[(usize, usize)]) -> u64 {
+fn count_horizontals(perimeter_x: &[(usize, usize)]) -> u64 {
+    let mut result = 1;
+    for i in 1..perimeter_x.len() {
+        if perimeter_x[i - 1].1.abs_diff(perimeter_x[i].1) > 1 || perimeter_x[i].0 != perimeter_x[i - 1].0 {
+            result += 1;
+        }
+    }
+    result
+}
+
+fn count_verticals(perimeter_y: &[(usize, usize)]) -> u64 {
+    let mut result = 1;
+    for i in 1..perimeter_y.len() {
+        if perimeter_y[i-1].0.abs_diff(perimeter_y[i].0) > 1 || perimeter_y[i].1 != perimeter_y[i-1].1 {
+            result += 1;
+        }
+    }
+    result
+}
+
+fn calc_sides(perimeter: &[((usize, usize), Direction)]) -> u64 {
     if perimeter.is_empty() {
         return 0;
     }
+    let mut perimeter_up = Vec::new();
+    let mut perimeter_down = Vec::new();
+    let mut perimeter_left = Vec::new();
+    let mut perimeter_right = Vec::new();
 
-    let mut perimeter_x = perimeter.iter().sorted().collect_vec();
-    perimeter_x.push(&(usize::MAX, usize::MAX));
-    let mut perimeter_y = perimeter.iter().sorted_by(|&&a, &&b| {
+    for e in perimeter {
+        match e.1 {
+            Up => perimeter_up.push(e.0),
+            Down => perimeter_down.push(e.0),
+            Left => perimeter_left.push(e.0),
+            Right => perimeter_right.push(e.0),
+        }
+    }
+
+    let sort_routine = |a: &(usize, usize), b: &(usize, usize)| {
         if a.1 > b.1 {
             Ordering::Greater
         } else if a.1 < b.1 {
@@ -83,38 +124,19 @@ fn calc_sides(perimeter: &[(usize, usize)]) -> u64 {
         } else {
             Ordering::Equal
         }
-    }).collect_vec();
-    perimeter_y.push(&(usize::MAX, usize::MAX));
+    };
 
-    let mut already_visited = 0;
+    perimeter_up.sort();
+    perimeter_down.sort();
+    perimeter_left.sort_by(sort_routine);
+    perimeter_right.sort_by(sort_routine);
 
-    let mut result = 0;
-    let mut current_len = 1;
-    for i in 1..perimeter_x.len() {
-        if perimeter_x[i-1].1.abs_diff(perimeter_x[i].1) > 1 || perimeter_x[i].0 != perimeter_x[i-1].0 {
-            if current_len > 1 {
-                already_visited += current_len;
-                result += 1;
-            }
-            current_len = 1;
-        } else {
-            current_len += 1;
-        }
-    }
+    let mut result = count_horizontals(&perimeter_up);
+    result += count_horizontals(&perimeter_down);
+    result += count_verticals(&perimeter_left);
+    result += count_verticals(&perimeter_right);
 
-    let mut current_len = 1;
-    for i in 1..perimeter_y.len() {
-        if perimeter_y[i-1].0.abs_diff(perimeter_y[i].0) > 1 || perimeter_y[i].1 != perimeter_y[i-1].1 {
-            if current_len > 1 {
-                already_visited += current_len;
-                result += 1;
-            }
-            current_len = 1;
-        } else {
-            current_len += 1;
-        }
-    }
-    (result + (perimeter.len() - already_visited)) as u64
+    result
 }
 
 pub fn exec_day12_part2(input: &str) -> String {
@@ -125,9 +147,8 @@ pub fn exec_day12_part2(input: &str) -> String {
     for i in 0..grid.len() {
         for j in 0..grid[0].len() {
             let c = grid[i][j].0;
-            let (area, perimeter) = explore_region2(&mut grid, (i, j), c);
+            let (area, perimeter) = explore_region2(&mut grid, (i, j), c, Left);
             result += area * calc_sides(&perimeter);
-            println!("{:?} {area} {}", c as char, calc_sides(&perimeter))
         }
     }
     result.to_string()
@@ -139,7 +160,7 @@ fn test_day12_part1() {
         Ok(s) => s,
         Err(_) => panic!(),
     };
-    assert_eq!(exec_day12_part1(&input), "140")
+    assert_eq!(exec_day12_part1(&input), "1930")
 }
 
 #[test]
@@ -148,5 +169,5 @@ fn test_day12_part2() {
         Ok(s) => s,
         Err(_) => panic!(),
     };
-    assert_eq!(exec_day12_part2(&input), "80")
+    assert_eq!(exec_day12_part2(&input), "1206")
 }
