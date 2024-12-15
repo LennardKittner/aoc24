@@ -77,7 +77,6 @@ pub fn exec_day15_part1(input: &str) -> String {
     }
 
     for move_ in moves {
-
         let mut next_position = (move_.0 + current_position.0, move_.1 + current_position.1);
         match grid[next_position.1  as usize][next_position.0  as usize] {
             Wall => next_position = current_position,
@@ -103,25 +102,18 @@ pub fn exec_day15_part1(input: &str) -> String {
     sum.to_string()
 }
 
-fn simulate_box_move2_l(grid: &mut [Vec<Entity2>], current_position: (i32, i32), direction: (i32, i32)) -> bool {
-    let other_box_part = (current_position.0 + 1, current_position.1);
-    if check_box_move2(grid, current_position, direction) && check_box_move2(grid, other_box_part, direction) {
-        simulate_box_move2_part(grid, current_position, direction);
-        if direction == (0, -1) || direction == (0, 1) {
-            simulate_box_move2_part(grid, other_box_part, direction);
-        }
-        true
+fn simulate_box_move2(grid: &mut [Vec<Entity2>], current_position: (i32, i32), direction: (i32, i32)) -> bool {
+    let part1 = current_position;
+    let part2 = if grid[current_position.1 as usize][current_position.0 as usize] == Entity2::BoxL {
+        (current_position.0 + 1, current_position.1)
     } else {
-        false
-    }
-}
+        (current_position.0 - 1, current_position.1)
+    };
 
-fn simulate_box_move2_r(grid: &mut [Vec<Entity2>], current_position: (i32, i32), direction: (i32, i32)) -> bool {
-    let other_box_part = (current_position.0 - 1, current_position.1);
-    if check_box_move2(grid, current_position, direction) && check_box_move2(grid, other_box_part, direction) {
-        simulate_box_move2_part(grid, current_position, direction);
+    if check_box_move2(grid, part1, direction) && check_box_move2(grid, part2, direction) {
+        simulate_box_move2_part(grid, part1, direction);
         if direction == (0, -1) || direction == (0, 1) {
-            simulate_box_move2_part(grid, other_box_part, direction);
+            simulate_box_move2_part(grid, part2, direction);
         }
         true
     } else {
@@ -138,45 +130,31 @@ fn simulate_box_move2_part(grid: &mut [Vec<Entity2>], current_position: (i32, i3
         if direction == (0, -1) || direction == (0, 1) {
             simulate_box_move2_part(grid, (next_position.0 + 1, next_position.1), direction);
         }
-        grid[next_position.1 as usize][next_position.0 as usize] = grid[current_position.1 as usize][current_position.0 as usize];
-        grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
     } else if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::BoxR {
         simulate_box_move2_part(grid, next_position, direction);
         if direction == (0, -1) || direction == (0, 1) {
-            simulate_box_move2_part(grid, (next_position.0 - 1 , next_position.1), direction);
+            simulate_box_move2_part(grid, (next_position.0 - 1, next_position.1), direction);
         }
-        grid[next_position.1 as usize][next_position.0 as usize] = grid[current_position.1 as usize][current_position.0 as usize];
-        grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
-    } else if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::Free {
-        grid[next_position.1 as usize][next_position.0 as usize] = grid[current_position.1 as usize][current_position.0 as usize];
-        grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
-    } else {
-        panic!("why? {:?}", grid[next_position.1 as usize][next_position.0 as usize]);
     }
+    grid[next_position.1 as usize][next_position.0 as usize] = grid[current_position.1 as usize][current_position.0 as usize];
+    grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
 }
 
 fn check_box_move2(grid: &[Vec<Entity2>], current_position: (i32, i32), direction: (i32, i32)) -> bool {
     let next_position = (current_position.0 + direction.0, current_position.1 + direction.1);
     if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::Wall {
         false
-    } else if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::BoxL {
-        let c1 = check_box_move2(grid, next_position, direction);
-        if direction == (0, 1) || direction == (0, -1) {
-            c1 && check_box_move2(grid, (next_position.0 + 1, next_position.1), direction)
-        } else {
-            c1
-        }
-    } else if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::BoxR {
-        let c1 = check_box_move2(grid, next_position, direction);
-        if direction == (0, 1) || direction == (0, -1) {
-            c1 && check_box_move2(grid, (next_position.0 - 1, next_position.1), direction)
-        } else {
-            c1
-        }
     } else if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::Free {
         true
     } else {
-        panic!("why?");
+        let check1 = check_box_move2(grid, next_position, direction);
+        if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::BoxL && (direction == (0, 1) || direction == (0, -1)) {
+            check1 && check_box_move2(grid, (next_position.0 + 1, next_position.1), direction)
+        } else if grid[next_position.1 as usize][next_position.0 as usize] == Entity2::BoxR && (direction == (0, 1) || direction == (0, -1)) {
+            check1 && check_box_move2(grid, (next_position.0 - 1, next_position.1), direction)
+        } else {
+            check1
+        }
     }
 }
 
@@ -217,28 +195,18 @@ pub fn exec_day15_part2(input: &str) -> String {
     for move_ in moves {
         let mut next_position = (move_.0 + current_position.0, move_.1 + current_position.1);
         match grid[next_position.1  as usize][next_position.0  as usize] {
-            Entity2::Wall => next_position = current_position,
-            Entity2::BoxL => {
-                if simulate_box_move2_l(&mut grid, next_position, move_) {
-                    grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
-                    current_position = next_position;
-                    grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Robot;
-                }
-            },
-            Entity2::BoxR => {
-                if simulate_box_move2_r(&mut grid, next_position, move_) {
-                    grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
-                    current_position = next_position;
-                    grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Robot;
+            Entity2::Wall => continue,
+            Entity2::BoxL | Entity2::BoxR => {
+                if !simulate_box_move2(&mut grid, next_position, move_) {
+                    continue;
                 }
             },
             Entity2::Robot => panic!("two robots"),
-            Entity2::Free => {
-                grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
-                current_position = next_position;
-                grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Robot;
-            },
+            Entity2::Free => (),
         }
+        grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Free;
+        current_position = next_position;
+        grid[current_position.1 as usize][current_position.0 as usize] = Entity2::Robot;
     }
 
     let mut sum = 0;
