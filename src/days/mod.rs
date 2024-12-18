@@ -5,18 +5,21 @@ use crate::exec;
 mod day9;
 mod day11;
 mod day3;
+mod day16;
 mod day6;
 mod day1;
 mod day8;
 mod day5;
+mod day15;
 mod day12;
 mod day14;
 mod day10;
 mod day13;
 mod day7;
 mod day4;
+mod day17;
 mod day2;
-mod day15;
+mod day18;
 
 
 pub fn run(day: i32) {
@@ -35,6 +38,9 @@ pub fn run(day: i32) {
         3 => {
             exec(3, day3::exec_day3_part1, day3::exec_day3_part2, &input);
         },
+        16 => {
+            exec(16, day16::exec_day16_part1, day16::exec_day16_part2, &input);
+        },
         6 => {
             exec(6, day6::exec_day6_part1, day6::exec_day6_part2, &input);
         },
@@ -46,6 +52,9 @@ pub fn run(day: i32) {
         },
         5 => {
             exec(5, day5::exec_day5_part1, day5::exec_day5_part2, &input);
+        },
+        15 => {
+            exec(15, day15::exec_day15_part1, day15::exec_day15_part2, &input);
         },
         12 => {
             exec(12, day12::exec_day12_part1, day12::exec_day12_part2, &input);
@@ -65,11 +74,14 @@ pub fn run(day: i32) {
         4 => {
             exec(4, day4::exec_day4_part1, day4::exec_day4_part2, &input);
         },
+        17 => {
+            exec(17, day17::exec_day17_part1, day17::exec_day17_part2, &input);
+        },
         2 => {
             exec(2, day2::exec_day2_part1, day2::exec_day2_part2, &input);
         },
-        15 => {
-            exec(15, day15::exec_day15_part1, day15::exec_day15_part2, &input);
+        18 => {
+            exec(18, day18::exec_day18_part1, day18::exec_day18_part2, &input);
         },
         _ => (),
     }
