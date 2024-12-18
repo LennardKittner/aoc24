@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 #[cfg(test)]
 use std::fs;
 use std::str::FromStr;
@@ -6,6 +5,7 @@ use itertools::Itertools;
 use crate::days::day17::Opcode::{ADV, BDV, BST, BXC, BXL, CDV, JNZ, OUT};
 use crate::days::day17::OperantType::{Combo, Literal};
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 struct CPU {
     program_counter: u64,
@@ -20,6 +20,7 @@ enum OperantType {
     Combo
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 enum Opcode {
     ADV,
@@ -66,7 +67,7 @@ impl Opcode {
         let mut next_instruction_at = cpu.program_counter + 2;
         let mut output = None;
         match opcode {
-            ADV => cpu.a = cpu.a / 2u64.pow(operant as u32),
+            ADV => cpu.a /= 2u64.pow(operant as u32),
             BXL => cpu.b ^= operant,
             BST => cpu.b = operant % 8,
             JNZ => if cpu.a != 0 { next_instruction_at = operant },
