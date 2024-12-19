@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 #[cfg(test)]
 use std::fs;
-use gomez::nalgebra::SimdBool;
 use itertools::Itertools;
 
 fn is_possible<'a>(towels: &[&str], target: &'a str, cache: &mut HashMap<&'a str, bool>) -> bool {
@@ -12,8 +11,8 @@ fn is_possible<'a>(towels: &[&str], target: &'a str, cache: &mut HashMap<&'a str
         return true;
     }
     if towels.iter().any(|&t| {
-        if target.starts_with(t) {
-            is_possible(towels, &target[t.len()..], cache)
+        if let Some(suffix) = target.strip_prefix(t) {
+            is_possible(towels, suffix, cache)
         } else {
             false
         }
@@ -34,8 +33,8 @@ fn is_possible2<'a>(towels: &[&str], target: &'a str, cache: &mut HashMap<&'a st
         return 1;
     }
     let result = towels.iter().map(|&t| {
-        if target.starts_with(t) {
-            is_possible2(towels, &target[t.len()..], cache)
+        if let Some(suffix) = target.strip_prefix(t) {
+            is_possible2(towels, suffix, cache)
         } else {
             0
         }
@@ -52,7 +51,7 @@ pub fn exec_day19_part1(input: &str) -> String {
 
     let mut result = 0;
     for target in targets {
-        if is_possible(&towels, &target, &mut cache) {
+        if is_possible(&towels, target, &mut cache) {
             result += 1;
         }
     }
@@ -68,7 +67,7 @@ pub fn exec_day19_part2(input: &str) -> String {
 
     let mut result = 0;
     for target in targets {
-        result += is_possible2(&towels, &target, &mut cache);
+        result += is_possible2(&towels, target, &mut cache);
     }
 
     result.to_string()
