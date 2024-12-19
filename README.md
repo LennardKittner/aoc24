@@ -20,8 +20,9 @@
 | [Day 16](./src/days/day16.rs) | `33.73ms` | `0.00ms` |
 | [Day 17](./src/days/day17.rs) | `11.14µs` | `0.02µs` |
 | [Day 18](./src/days/day18.rs) | `425.89µs` | `154.06µs` |
+| [Day 19](./src/days/day19.rs) | `22.23ms` | `55.53ms` |
 
-Total time: `233.04947ms`
+Total time: `310.815429ms`
 
 ## Usage
 Generate the files for a day
